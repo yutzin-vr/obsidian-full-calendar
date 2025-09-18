@@ -4,14 +4,14 @@ import { DateTime } from "luxon";
 import { rrulestr } from "rrule";
 
 function getDate(t: ical.Time): string {
-    return DateTime.fromSeconds(t.toUnixTime(), { zone: "UTC" }).toISODate();
+    return DateTime.fromSeconds(t.toUnixTime()).toISODate();
 }
 
 function getTime(t: ical.Time): string {
     if (t.isDate) {
         return "00:00";
     }
-    return DateTime.fromSeconds(t.toUnixTime(), { zone: "UTC" }).toISOTime({
+    return DateTime.fromSeconds(t.toUnixTime()).toISOTime({
         includeOffset: false,
         includePrefix: false,
         suppressMilliseconds: true,
@@ -52,21 +52,13 @@ function icsToOFC(input: ical.Event): OFCEvent {
             id: `ics::${input.uid}::${getDate(input.startDate)}::recurring`,
             rrule: rrule.toString(),
             skipDates: exdates,
-            startDate: getDate(
-                input.startDate.convertToZone(ical.Timezone.utcTimezone)
-            ),
+            startDate: getDate(input.startDate),
             ...(allDay
                 ? { allDay: true }
                 : {
                       allDay: false,
-                      startTime: getTime(
-                          input.startDate.convertToZone(
-                              ical.Timezone.utcTimezone
-                          )
-                      ),
-                      endTime: getTime(
-                          input.endDate.convertToZone(ical.Timezone.utcTimezone)
-                      ),
+                      startTime: getTime(input.startDate),
+                      endTime: getTime(input.endDate),
                   }),
         };
     } else {
